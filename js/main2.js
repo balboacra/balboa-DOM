@@ -1,9 +1,8 @@
 
 let carritoCompras = [];
-const carritoLS = localStorage.getItem("carritoCompras")
-const carritoEnStorage = JSON.parse(carritoLS);
+let carritoLS = localStorage.getItem("carritoCompras")
+let carritoEnStorage = JSON.parse(carritoLS);
 console.log(carritoEnStorage);
-
 
 const contenedorProductos = document.getElementById('contenedor-productos');
 const contenedorCarrito = document.getElementById('contenedor-carrito');
@@ -14,7 +13,25 @@ const finCompra = document.getElementById('fin-compra');
 const contadorCarrito = document.getElementById('contador-carrito');
 const precioTotal = document.getElementById('precio-total');
 
+
 mostrarProductos()
+mostrarLocalStorageCarrito()
+actualizarCarrito()
+
+
+
+
+
+function mostrarLocalStorageCarrito() {
+    if (carritoEnStorage) {
+        carritoCompras = JSON.parse(localStorage.getItem("carritoCompras"));
+    } else {
+        carritoCompras = [];
+        localStorage.setItem("carritoCompras", JSON.stringify(carritoCompras))
+        mostrarCarrito()
+    }
+}
+
 
 function mostrarProductos() {
 
@@ -45,19 +62,6 @@ function mostrarProductos() {
     })
 }
 
-function recuperarLocalStorage() {
-    if (carritoEnStorage == null) {
-        carritoCompras = [];
-    } else {
-        carritoCompras = carritoEnStorage;
-
-    } {
-    agregarAlCarrito()
-    mostrarCarrito()
-    actualizarCarrito()}
-}
-
-
 function agregarAlCarrito(id) {
 
     let productoAgregar = productos.find(item => item.id === id)
@@ -70,7 +74,6 @@ function agregarAlCarrito(id) {
 
 function mostrarCarrito(productoAgregar) {
 
-    
     let div = document.createElement(`div`)
     div.setAttribute(`class`, `productoEnCarrito`)
     div.innerHTML = `<div class="container d-flex justify-content-between shadow-sm">
@@ -91,8 +94,6 @@ function mostrarCarrito(productoAgregar) {
         btnEliminar.parentElement.remove()
         carritoCompras = carritoCompras.filter(elemento => elemento.id !== productoAgregar.id)
         actualizarCarrito()
-
-        localStorage.setItem("carritoCompras", JSON.stringify(carritoCompras))
     })
 }
 
@@ -100,7 +101,6 @@ function mostrarCarrito(productoAgregar) {
 function actualizarCarrito() {
     contadorCarrito.innerText = carritoCompras.length
     precioTotal.innerText = carritoCompras.reduce((acc, el) => acc + el.precio, 0)
-    localStorage.setItem("carritoCompras", JSON.stringify(carritoCompras))
 }
 
 
