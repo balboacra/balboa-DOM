@@ -1,7 +1,5 @@
-
-let carritoCompras = [];
-let carritoLS = localStorage.getItem("carritoCompras")
-let carritoEnStorage = JSON.parse(carritoLS);
+let carritoCompras
+const carritoEnStorage = JSON.parse(localStorage.getItem("carritoCompras")) || [];
 console.log(carritoEnStorage);
 
 const contenedorProductos = document.getElementById('contenedor-productos');
@@ -13,25 +11,9 @@ const finCompra = document.getElementById('fin-compra');
 const contadorCarrito = document.getElementById('contador-carrito');
 const precioTotal = document.getElementById('precio-total');
 
-
 mostrarProductos()
-mostrarLocalStorageCarrito()
-actualizarCarrito()
 
-
-
-
-
-function mostrarLocalStorageCarrito() {
-    if (carritoEnStorage) {
-        carritoCompras = JSON.parse(localStorage.getItem("carritoCompras"));
-    } else {
-        carritoCompras = [];
-        localStorage.setItem("carritoCompras", JSON.stringify(carritoCompras))
-        mostrarCarrito()
-    }
-}
-
+carritoEnStorage ? carritoCompras = carritoEnStorage : carritoCompras = [];
 
 function mostrarProductos() {
 
@@ -58,19 +40,24 @@ function mostrarProductos() {
         let btnAgregar = document.getElementById(`boton${el.id}`)
         btnAgregar.addEventListener(`click`, () => {
             agregarAlCarrito(el.id);
+            Toastify({
+                text: "Has agregado un producto al carrito",
+                duration: 2000,
+            }).showToast();
         })
     })
 }
 
+
 function agregarAlCarrito(id) {
 
     let productoAgregar = productos.find(item => item.id === id)
-    console.log(productoAgregar)
     carritoCompras.push(productoAgregar)
     mostrarCarrito(productoAgregar)
     actualizarCarrito()
     localStorage.setItem("carritoCompras", JSON.stringify(carritoCompras))
 }
+
 
 function mostrarCarrito(productoAgregar) {
 
@@ -88,11 +75,15 @@ function mostrarCarrito(productoAgregar) {
 
     contenedorCarrito.appendChild(div)
 
-
     let btnEliminar = document.getElementById(`eliminar${productoAgregar.id}`)
     btnEliminar.addEventListener(`click`, () => {
+        Toastify({
+            text: "Has eliminado un producto del carrito",
+            duration: 2000,
+        }).showToast();
         btnEliminar.parentElement.remove()
         carritoCompras = carritoCompras.filter(elemento => elemento.id !== productoAgregar.id)
+        carritoCompras = localStorage.removeItem(productoAgregar.id)
         actualizarCarrito()
     })
 }
@@ -100,10 +91,8 @@ function mostrarCarrito(productoAgregar) {
 
 function actualizarCarrito() {
     contadorCarrito.innerText = carritoCompras.length
-    precioTotal.innerText = carritoCompras.reduce((acc, el) => acc + el.precio, 0)
+    precioTotal.innerText = carritoCompras.reduce((acc, el) => acc + el.precio, 0);
 }
 
 
-
-
-
+console.log(carritoCompras);
