@@ -2,6 +2,8 @@ let carritoCompras
 const carritoEnStorage = JSON.parse(localStorage.getItem("carritoCompras")) || [];
 console.log(carritoEnStorage);
 
+const URL = '../JSON/objetos.json';
+
 const contenedorProductos = document.getElementById('contenedor-productos');
 const contenedorCarrito = document.getElementById('contenedor-carrito');
 
@@ -15,35 +17,34 @@ const vaciarCarrito = () => {
 const contadorCarrito = document.getElementById('contador-carrito');
 const precioTotal = document.getElementById('precio-total');
 
-mostrarProductos()
+
 
 carritoEnStorage ? carritoCompras = carritoEnStorage : carritoCompras = [];
 
-function mostrarProductos() {
 
-    productos.forEach(el => {
+function renderProducts(productos) {
+    productos.forEach(({ id, estilo, precio, pack, img }) => {
         let div = document.createElement(`div`)
-        div.className = "card w-25"
-        div.innerHTML = `<img src="${el.img}" class="card-img-top shadow-lg" alt="...">
+        div.className = "card"
+        div.innerHTML = `<img src="${img}" class="card-img-top shadow-lg" alt="...">
                             <div class="card-body">
                                 <div class="col">
                                     <div class="card mb-4 rounded-3 shadow-sm">
                                         <div class="card-header py-3">
-                                            <h4 class="my-0 fw-normal">${el.estilo}</h4>
+                                            <h4 class="my-0 fw-normal">${estilo}</h4>
                                         </div>
                                     <div class="card-body">
-                                        <h1 class="card-title pricing-card-title">$${el.precio}<small class="text-muted fw-light">/${el.pack}</small></h1>
-                                        <button id="boton${el.id}" type="button" class="w-100 btn btn-lg btn-outline-primary">Agregar al
+                                        <h1 class="card-title pricing-card-title">$${precio}<small class="text-muted fw-light">/${pack}</small></h1>
+                                        <button id="boton${id}" type="button" class="w-100 btn btn-lg btn-outline-primary">Agregar al
                                         carrito</button>
                                 </div>
                             </div>
                         </div>`
-
         contenedorProductos.appendChild(div)
 
-        let btnAgregar = document.getElementById(`boton${el.id}`)
+        let btnAgregar = document.getElementById(`boton${id}`)
         btnAgregar.addEventListener(`click`, () => {
-            agregarAlCarrito(el.id);
+            agregarAlCarrito(id);
             Toastify({
                 text: "Has agregado un producto al carrito",
                 duration: 2000,
@@ -51,6 +52,79 @@ function mostrarProductos() {
         })
     })
 }
+
+fetch(URL)
+    .then(res => res.json())
+    .then(productos => {
+        console.log(productos)
+        renderProducts(productos)
+    })
+    .catch(err => { console.log("Hubo un error") })
+    .finally(() => { console.log('Finished fetch') })
+
+
+const filtroPack = ['Pack 6', 'Pack 12', 'Pack 24', 'Todos'];
+
+
+filtroPack.forEach(pack => {
+    const btn = document.createElement('button');
+    btn.innerHTML = pack;
+    btn.classList.add('btn', 'btn-primary', 'm-2', 'mb-5');
+
+    btn.addEventListener('click', () => {
+        if (pack === 'Todos') {
+            document.getElementById('contenedor-productos').innerHTML = "";
+            fetch(URL)
+                .then(res => res.json())
+                .then(data => {
+                    renderProducts(data)
+                })
+                .catch(err => { console.log("Hubo un error") })
+                .finally(() => console.log("Finalizo"))
+        } else {
+
+            const packFiltrado = productos.filter(prod => prod.pack === pack)
+
+            console.log(packFiltrado);
+
+            document.querySelector('#contenedor-productos').innerHTML = "";
+
+            packFiltrado.forEach(({ id, estilo, precio, pack, img }) => {
+
+                let div = document.createElement(`div`)
+                div.className = "card"
+                div.innerHTML = `<img src="${img}" class="card-img-top shadow-lg" alt="...">
+                            <div class="card-body">
+                                <div class="col">
+                                    <div class="card mb-4 rounded-3 shadow-sm">
+                                        <div class="card-header py-3">
+                                            <h4 class="my-0 fw-normal">${estilo}</h4>
+                                        </div>
+                                    <div class="card-body">
+                                        <h1 class="card-title pricing-card-title">$${precio}<small class="text-muted fw-light">/${pack}</small></h1>
+                                        <button id="boton${id}" type="button" class="w-100 btn btn-lg btn-outline-primary">Agregar al
+                                        carrito</button>
+                                </div>
+                            </div>
+                        </div>`
+                contenedorProductos.appendChild(div)
+
+                let btnAgregar = document.getElementById(`boton${id}`)
+                btnAgregar.addEventListener(`click`, () => {
+                    agregarAlCarrito(id);
+                    Toastify({
+                        text: "Has agregado un producto al carrito",
+                        duration: 2000,
+                    }).showToast();
+                })
+
+            })
+
+        }
+    })
+
+    document.querySelector("#pack").appendChild(btn);
+})
 
 
 function agregarAlCarrito(id) {
@@ -99,4 +173,3 @@ function actualizarCarrito() {
 }
 
 
-console.log(carritoCompras);

@@ -1,6 +1,5 @@
-let carritoCompras = [];
-const carritoLS = localStorage.getItem("carritoCompras")
-const carritoEnStorage = JSON.parse(carritoLS);
+let carritoCompras
+const carritoEnStorage = JSON.parse(localStorage.getItem("carritoCompras")) || [];
 console.log(carritoEnStorage);
 
 const contenedorProductos = document.getElementById('contenedor-productos');
@@ -13,21 +12,8 @@ const contadorCarrito = document.getElementById('contador-carrito');
 const precioTotal = document.getElementById('precio-total');
 
 mostrarProductos()
-function actualizarCarritoLS() {
-    contadorCarrito.innerText = carritoEnStorage.length
-    precioTotal.innerText = carritoEnStorage.reduce((acc, el) => acc + el.precio, 0);
-    actualizarCarritoLS()
-}
 
-
-    if (carritoEnStorage) {
-        carritoCompras = carritoEnStorage;
-    } else {
-        carritoCompras = [];
-        localStorage.setItem("carritoCompras", JSON.stringify(carritoCompras))
-        mostrarCarrito()
-    }
-
+carritoEnStorage ? carritoCompras = carritoEnStorage : carritoCompras = [];
 
 function mostrarProductos() {
 
@@ -54,6 +40,10 @@ function mostrarProductos() {
         let btnAgregar = document.getElementById(`boton${el.id}`)
         btnAgregar.addEventListener(`click`, () => {
             agregarAlCarrito(el.id);
+            Toastify({
+                text: "Has agregado un producto al carrito",
+                duration: 2000,
+            }).showToast();
         })
     })
 }
@@ -87,6 +77,10 @@ function mostrarCarrito(productoAgregar) {
 
     let btnEliminar = document.getElementById(`eliminar${productoAgregar.id}`)
     btnEliminar.addEventListener(`click`, () => {
+        Toastify({
+            text: "Has eliminado un producto del carrito",
+            duration: 2000,
+        }).showToast();
         btnEliminar.parentElement.remove()
         carritoCompras = carritoCompras.filter(elemento => elemento.id !== productoAgregar.id)
         carritoCompras = localStorage.removeItem(productoAgregar.id)
